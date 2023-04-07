@@ -190,9 +190,9 @@ func commonArgs(cluster string, cfg *config.Cluster, networkName string, nodeNam
 
 	// handle Docker on Btrfs or ZFS
 	// https://github.com/kubernetes-sigs/kind/issues/1416#issuecomment-606514724
-	if mountDevMapper() {
-		args = append(args, "--volume", "/dev/mapper:/dev/mapper")
-	}
+	// if mountDevMapper() {
+	// 	args = append(args, "--volume", "/dev/mapper:/dev/mapper")
+	// }
 
 	// enable /dev/fuse explicitly for fuse-overlayfs
 	// (Rootless Docker does not automatically mount /dev/fuse with --privileged)
