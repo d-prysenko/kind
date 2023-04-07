@@ -30,20 +30,20 @@ COMMIT?=$(shell git rev-parse HEAD 2>/dev/null)
 # count the commits since the last release
 COMMIT_COUNT?=$(shell git describe --tags | rev | cut -d- -f2 | rev)
 ################################################################################
-# ========================= Setup Go With Gimme ================================
+# ================================ Setup Go ====================================
 # go version to use for build etc.
-# setup correct go version with gimme
-PATH:=$(shell . hack/build/setup-go.sh && echo "$${PATH}")
+# setup correct go version
+#PATH:=$(shell . hack/build/setup-go.sh && echo "$${PATH}")
 # go1.9+ can autodetect GOROOT, but if some other tool sets it ...
 GOROOT:=
 # enable modules
 GO111MODULE=on
 # disable CGO by default for static binaries
 CGO_ENABLED=0
-export PATH GOROOT GO111MODULE CGO_ENABLED
+export GOROOT GO111MODULE CGO_ENABLED
 # work around broken PATH export
 SPACE:=$(subst ,, )
-SHELL:=env PATH=$(subst $(SPACE),\$(SPACE),$(PATH)) $(SHELL)
+#SHELL:=env PATH=$(subst $(SPACE),\$(SPACE),$(PATH)) $(SHELL)
 ################################################################################
 # ============================== OPTIONS =======================================
 # install tool
@@ -62,7 +62,7 @@ KIND_BUILD_FLAGS?=-trimpath -ldflags="-buildid= -w $(KIND_BUILD_LD_FLAGS)"
 ################################################################################
 # ================================= Building ===================================
 # standard "make" target -> builds
-all: build
+all: prepare build
 # builds kind in a container, outputs to $(OUT_DIR)
 kind:
 	go build -v -o "$(OUT_DIR)/$(KIND_BINARY_NAME)" $(KIND_BUILD_FLAGS)
@@ -72,6 +72,13 @@ build: kind
 install: build
 	$(INSTALL) -d $(INSTALL_DIR)
 	$(INSTALL) "$(OUT_DIR)/$(KIND_BINARY_NAME)" "$(INSTALL_DIR)/$(KIND_BINARY_NAME)"
+################################################################################
+# ================================= Prepare ====================================
+prepare: install_go
+
+.PHONY: install_go
+install_go:
+	. hack/build/setup-go.sh
 ################################################################################
 # ================================= Testing ====================================
 # unit tests (hermetic)
